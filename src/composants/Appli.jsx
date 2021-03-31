@@ -10,6 +10,9 @@ import * as crudDossiers from '../services/crud-dossiers';
 import * as crudUtilisateurs from '../services/crud-utilisateurs';
 
 export default function Appli() {
+  // État du tri des dossiers
+  const trierDossiers = useState(0);
+
   // État de l'utilisateur (pas connecté = null / connecté = objet FB-Auth spécial)
   const [utilisateur, setUtilisateur] = useState(null);
 
@@ -57,7 +60,7 @@ export default function Appli() {
           <>
             <Entete utilisateur={utilisateur} />
             <section className="contenu-principal">
-              <ListeDossiers utilisateur={utilisateur} etatDossiers={etatDossiers} />
+              <ListeDossiers utilisateur={utilisateur} etatDossiers={etatDossiers} trierDossiers={trierDossiers}/>
               <AjouterDossier ouvert={ouvertAD} setOuvert={setOuvertAD} gererAjout={gererAjouter} />
               <Fab onClick={() => setOuvertAD(true)} className="ajoutRessource" color="primary" aria-label="Ajouter dossier">
                 <AddIcon />

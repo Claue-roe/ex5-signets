@@ -1,11 +1,35 @@
 import './ListeDossiers.scss';
 import Dossier from './Dossier';
 import * as crudDossiers from '../services/crud-dossiers';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, React } from 'react';
+import { makeStyles } from '@material-ui/core/styles';
+import Select from '@material-ui/core/Select';
+import InputLabel from '@material-ui/core/InputLabel';
+import MenuItem from '@material-ui/core/MenuItem';
+import FormControl from '@material-ui/core/FormControl';
 
-export default function ListeDossiers({utilisateur, etatDossiers}) {
+const useStyles = makeStyles((theme) => ({
+  formControl: {
+    margin: theme.spacing(5),
+    minWidth: 220,
+  },
+}));
+
+export default function ListeDossiers({utilisateur, etatDossiers, trierDossiers}) {
+  const classes = useStyles();
   // État des dossiers (vient du composant Appli)
   const [dossiers, setDossiers] = etatDossiers;
+  const [ouvert, setOuvert] = useState(false);
+  
+  const [valeur,setValeur] = trierDossiers;
+
+  const gererFermer = () => {
+    setOuvert(false);
+  };
+
+  const gererOuvert = () => {
+    setOuvert(true);
+  };
 
   // Lire les dossiers dans Firestore et forcer le réaffichage du composant
   // Remarquez que ce code est dans un useEffect() car on veut l'exécuter 
@@ -15,10 +39,10 @@ export default function ListeDossiers({utilisateur, etatDossiers}) {
   // forcé par la mutation de l'état des dossiers
   useEffect(
     () => {
-      crudDossiers.lireTout(utilisateur.uid).then(
+      crudDossiers.lireTout(utilisateur.uid, valeur).then(
         dossiers => setDossiers(dossiers)
       )
-    }, []
+    }, [valeur]
   );
 
   /**
@@ -36,7 +60,25 @@ export default function ListeDossiers({utilisateur, etatDossiers}) {
   }
   
   return (
-    <>
+    <> 
+     <FormControl className={classes.formControl}>
+        <InputLabel id="BarreSelection">Tri des dossiers</InputLabel>
+        <Select
+          labelId="BarreSelection"
+          open={ouvert}
+          onClose={gererFermer}
+          onOpen={gererOuvert}
+          defaultValue={0}
+          value={valeur}
+          onChange={(event) => {
+            setValeur(event.target.value);}
+          }
+        >
+          <MenuItem value={0}>Date de modification descendante</MenuItem>
+          <MenuItem value={1}>Nom de dossier ascendant</MenuItem>
+          <MenuItem value={2}>Nom de dossier descendant</MenuItem>
+        </Select>
+      </FormControl>
     <ul className="ListeDossiers">
       {
         (dossiers.length > 0) ?
